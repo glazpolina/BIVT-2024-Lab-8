@@ -16,89 +16,58 @@ namespace Lab_8
 построчно пары символа и вещественного числа, разделенных “-”.*/
 
         private (char, double)[] _output;
-        public (char, double)[] Output => _output;
+        public (char, double)[] Output
+        {
+            get
+            {
+                if (_output == null) return null;
+                (char, double)[] copied_output = new (char, double)[_output.Length];
+                Array.Copy(_output, copied_output, _output.Length);
+                return copied_output;
+            }
+        }
         public Blue_3(string input) : base(input)
         {
             _output = null;
         }
         public override void Review()
         {
-            if (string.IsNullOrEmpty(Input)) return;
+            if (string.IsNullOrWhiteSpace(Input))
+            {
+                _output = null;
+                return;
+            }
             string[] words = Input.Split(new[] { ' ', '.', '!', '?', ',', ':', '\"', ';', '–', '(', ')', '[', ']', '{', '}', '/', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-            char[] letters = new char[128];//(в одном алфавите будет точно меньше символов)
-            int[] number_of_appearances = new int[128];
-            int number_of_f_letters = 0;
-            int wordsintotal = 0;
+            var first_letters = new Dictionary <char, int> ();
+            int number_of_all_words = 0;
             foreach (var word in words)
             {
-                if (char.IsLetter(word[0]))
+                if (!string.IsNullOrEmpty(word) && char.IsLetter(word[0]))
                 {
-                    char letter = char.ToLower(word[0]);
-                    int index = -1;
-                    for (int i = 0; i < number_of_f_letters; i++)//проверяю записана ли уже буква
-                    {
-                        if (letters[i] == letter)
-                        {
-                            index = i;
-                            break;
-                        }
-                    }
-                    if (index != -1)//буква встречалась до этого
-                    {
-                        number_of_appearances[index]++;
-                    }
-                    else//буквы не было 
-                    {
-                        letters[number_of_f_letters] = letter;
-                        number_of_appearances[number_of_f_letters] = 1;
-                        number_of_f_letters++;
-                    }
-                    wordsintotal++;
+                    char firstletter = char.ToLower(word[0]);
+                    if (first_letters.ContainsKey(firstletter)) first_letters[firstletter]++;
+                    else first_letters[firstletter] = 1;
+                    number_of_all_words++;
                 }
             }
-
-            (char, double)[] result = new (char, double)[number_of_f_letters];
-            for (int i = 0; i < number_of_f_letters; i++)
+            if (number_of_all_words == 0)//in case there aren't any words in text
             {
-                result[i] = (letters[i], (double)number_of_appearances[i] / wordsintotal * 100);
+                _output = null;
+                return;
             }
-           
-            Sort(result);
-            _output = result;
+            _output = first_letters.Select(x => (x.Key, (double) x.Value / number_of_all_words * 100)).OrderByDescending(y => y.Item2).ThenBy(y => y.Item1).ToArray();
         }
-        private void Sort((char, double)[] result)
-        {
-            for (int i = 0; i < result.Length - 1; i++)
-            {
-                for (int j = i + 1; j < result.Length; j++)
-                {
-                    if (result[i].Item2 < result[j].Item2 || (Math.Abs(result[i].Item2 - result[j].Item2) < 0.0001 && result[i].Item1 > result[j].Item1))
-                    {
-                        var t = result[i];
-                        result[i] = result[j];
-                        result[j] = t;
-                    }
-                }
-            }
-        }
-    
+        
         public override string ToString()
         {
-            if (_output == null) return null;
+            if (_output == null || _output.Length == 0) return string.Empty;
             string result = "";
             for (int i = 0; i < _output.Length; i++)
             {
                 result += $"{_output[i].Item1} - {_output[i].Item2:f4}";
-                if (i != _output.Length - 1)
-                {
-                    result += Environment.NewLine;
-                }
+                if (i != _output.Length - 1) result += Environment.NewLine;
             }
             return result;
         }
-
-
     }
-    
-
 }

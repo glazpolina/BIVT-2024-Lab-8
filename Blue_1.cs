@@ -15,7 +15,7 @@ namespace Lab_8
             {
                 if (_output == null) return null;
                 string[] copy_of_output = new string[_output.Length];
-                for(int i = 0; i < copy_of_output.Length; i++)
+                for (int i = 0; i < copy_of_output.Length; i++)
                 {
                     copy_of_output[i] = _output[i];
                 }
@@ -32,56 +32,43 @@ namespace Lab_8
  массив отформатированных строк построчно.*/
         public override void Review()
         {
-            if (string.IsNullOrEmpty(Input)) return;
-            string[] array_of_lines = new string[0];
-            string[] words = Input.Split(' ');
-            int i = 0;
-            while(i < words.Length)
+            if (string.IsNullOrWhiteSpace(Input))
             {
-                string new_line = "";
-                int number_of_symbols = words[i].Length;
-                while (number_of_symbols <= 50)
+                _output = new string[0];
+                return;
+            }
+            string[] words = Input.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = new string[0];
+            string thisline = "";
+            for (int i = 0; i < words.Length; i++)
+            {
+                string word = words[i];
+                if (thisline.Length == 0) thisline = word;//beginning of a line
+                else if (1 + thisline.Length + word.Length <= 50) thisline += " " + word;//adding a word if it fits&not overflowing
+                else
                 {
-                    new_line += words[i] + " ";
-                    i++;
-                    
-                    if (i != words.Length)
-                    {
-                        number_of_symbols += words[i].Length + 1;
-                    }
-                    else break;
-                   
+                    lines = Addline(lines, thisline);
+                    thisline = word;
                 }
-                Add(ref array_of_lines, new_line.Substring(0, new_line.Length - 1));//последний пробел нужно удалить поэтому только часть строчки до new_line.Length - 1
             }
-
-            _output = array_of_lines;
-
+            if (thisline.Length > 0) lines = Addline(lines, thisline);//the last unadded line
+            _output = lines;
         }
-        private static void Add(ref string[] array_of_lines, string new_line)
+
+        private string[] Addline(string[] lines, string newline)
         {
-            if (array_of_lines == null || string.IsNullOrEmpty(new_line)) return;
-            string[] new_array = new string[array_of_lines.Length + 1];
-            for (int i = 0; i < array_of_lines.Length; i++) 
+            string[] new_array_of_lines = new string[lines.Length + 1];
+            for (int i = 0; i < lines.Length; i++)
             {
-                new_array[i] = array_of_lines[i];
+                new_array_of_lines[i] = lines[i];
             }
-            new_array[array_of_lines.Length] = new_line;
-            array_of_lines = new_array;
+            new_array_of_lines[lines.Length] = newline;
+            return new_array_of_lines;
         }
         public override string ToString()
         {
             if (_output == null || _output.Length == 0) return string.Empty;
-            string resulttext = "";
-            for (int i = 0; i < _output.Length; i++)
-            {
-                resulttext += _output[i];
-                if (i != _output.Length - 1)
-                {
-                    resulttext += Environment.NewLine;
-                }
-            }
-            return resulttext;
+            return string.Join(Environment.NewLine, _output);
         }
     }
 }
