@@ -24,7 +24,7 @@ namespace Lab_8
         }
         public Blue_1(string input):base(input)
         {
-            _output = new string[0];
+           _output = null;
         }
         /*Разбить исходный текст на строки длиной не более 50 символов. Перенос на
  новую строку осуществлять на месте пробела (слова не переносить). Свойство
@@ -34,7 +34,7 @@ namespace Lab_8
         {
             if (string.IsNullOrWhiteSpace(Input))
             {
-                _output = new string[0];
+                _output = null;
                 return;
             }
             string[] words = Input.Split(new char[] {' '}, StringSplitOptions.RemoveEmptyEntries);
